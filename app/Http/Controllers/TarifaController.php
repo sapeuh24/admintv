@@ -68,4 +68,11 @@ class TarifaController extends Controller
         }
         abort(403, 'No tienes permiso para ver esta página');
     }
+
+    public function obtenerTarifasJSON()
+    {
+        $tarifas = Tarifa::get();
+
+        return  response()->json($tarifas);
+    }
 }

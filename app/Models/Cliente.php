@@ -30,6 +30,6 @@ class Cliente extends Model
 
     public function servicios()
     {
-        return $this->hasMany(Servicio::class);
+        return $this->hasMany(Servicio::class, 'id_cliente');
     }
 }

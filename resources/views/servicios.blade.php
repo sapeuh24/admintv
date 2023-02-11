@@ -184,7 +184,7 @@
             $('#tabletarifas').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('obtener_servicios') }}",
+                ajax: "{{ route('obtener_servicios', $cliente->id) }}",
                 columns: [{
                         data: 'tarifa',
                         name: 'tarifa'
