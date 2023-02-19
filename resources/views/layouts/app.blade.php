@@ -17,8 +17,9 @@
     <link rel="stylesheet" href="{{ asset('assets/vendors/bootstrap-icons/bootstrap-icons.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('css/jquery.dataTables.min.css') }}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.4/css/buttons.dataTables.min.css">
 
-    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.svg"') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}" type="image/x-icon">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 </head>
 
@@ -27,12 +28,9 @@
         <div id="sidebar" class="active">
             <div class="sidebar-wrapper active">
                 <div class="sidebar-header">
-                    <div class="d-flex justify-content-between">
-                        <div class="logo">
-                            <a href="{{ route('/') }}">
-                                AdminTV
-                            </a>
-                        </div>
+                    <div class="d-flex justify-content-center">
+                        <a href="{{ route('/') }}"><img src="{{ asset('assets/images/logo.png') }}" alt="Logo"
+                                class="img-fluid" style="height: 6.5rem"></a>
                         <div class="toggler">
                             <a href="#" class="sidebar-hide d-xl-none d-block"><i
                                     class="bi bi-x bi-middle"></i></a>
@@ -41,28 +39,97 @@
                 </div>
                 <div class="sidebar-menu">
                     <ul class="menu">
-                        <li class="sidebar-title">Administración</li>
-
                         <li class="sidebar-item  ">
-                            <a href="{{ route('roles_permisos') }}" class='sidebar-link'>
-                                <i class="bi bi-gear-fill"></i>
-                                <span>Roles y permisos</span>
+                            <a href="{{ route('/') }}" class='sidebar-link'>
+                                <i class="bi bi-graph-up"></i>
+                                <span>Dashboard</span>
                             </a>
                         </li>
 
-                        <li class="sidebar-item  ">
-                            <a href="{{ route('usuarios') }}" class='sidebar-link'>
-                                <i class="bi bi-person-fill"></i>
-                                <span>Usuarios</span>
-                            </a>
-                        </li>
+                        @if (auth()->user()->can('Ver Ver roles y permisos') ||
+                                auth()->user()->can('Ver usuarios') ||
+                                auth()->user()->can('Ver ventas') ||
+                                auth()->user()->can('Ver anulaciones'))
+                            <li class="sidebar-title">Administración</li>
+                        @endif
+                        @if (auth()->user()->can('Ver roles y permisos'))
+                            <li class="sidebar-item  ">
+                                <a href="{{ route('roles_permisos') }}" class='sidebar-link'>
+                                    <i class="bi bi-gear-fill"></i>
+                                    <span>Roles y permisos</span>
+                                </a>
+                            </li>
+                        @endif
 
-                        <li class="sidebar-item  ">
-                            <a href="{{ route('tarifas') }}" class='sidebar-link'>
-                                <i class="bi bi-receipt"></i>
-                                <span>Tarifas</span>
-                            </a>
-                        </li>
+                        @if (auth()->user()->can('Ver usuarios'))
+                            <li class="sidebar-item">
+                                <a href="{{ route('usuarios') }}" class='sidebar-link'>
+                                    <i class="bi bi-person-fill"></i>
+                                    <span>Usuarios</span>
+                                </a>
+                            </li>
+                        @endif
+
+                        @if (auth()->user()->can('Ver ventas'))
+                            <li class="sidebar-item">
+                                <a href="{{ route('ventas') }}" class='sidebar-link'>
+                                    <i class="bi bi-clipboard-data"></i>
+                                    <span>Ventas</span>
+                                </a>
+                            </li>
+                        @endif
+
+                        @if (auth()->user()->can('Ver anulaciones'))
+                            <li class="sidebar-item">
+                                <a href="{{ route('anulaciones') }}" class='sidebar-link'>
+                                    <i class="bi bi-x-circle"></i>
+                                    <span>Anulaciones</span>
+                                </a>
+                            </li>
+                        @endif
+
+                        @if (auth()->user()->can('Ver tarifas') ||
+                                auth()->user()->can('Ver aplicaciones') ||
+                                auth()->user()->can('Ver dispositivos') ||
+                                auth()->user()->can('Ver pasarelas'))
+                            <li class="sidebar-title">Parametrizar</li>
+                        @endif
+
+                        @if (auth()->user()->can('Ver tarifas'))
+                            <li class="sidebar-item">
+                                <a href="{{ route('tarifas') }}" class='sidebar-link'>
+                                    <i class="bi bi-receipt"></i>
+                                    <span>Tarifas</span>
+                                </a>
+                            </li>
+                        @endif
+
+                        @if (auth()->user()->can('Ver aplicaciones'))
+                            <li class="sidebar-item">
+                                <a href="{{ route('aplicaciones') }}" class='sidebar-link'>
+                                    <i class="bi bi-app-indicator"></i>
+                                    <span>Aplicaciones</span>
+                                </a>
+                            </li>
+                        @endif
+
+                        @if (auth()->user()->can('Ver dispositivos'))
+                            <li class="sidebar-item">
+                                <a href="{{ route('dispositivos') }}" class='sidebar-link'>
+                                    <i class="bi bi-display"></i>
+                                    <span>Dispositivos</span>
+                                </a>
+                            </li>
+                        @endif
+
+                        @if (auth()->user()->can('Ver pasarelas'))
+                            <li class="sidebar-item  ">
+                                <a href="{{ route('pasarelas') }}" class='sidebar-link'>
+                                    <i class="bi bi-cash"></i>
+                                    <span>Pasarelas</span>
+                                </a>
+                            </li>
+                        @endif
 
                         <li class="sidebar-title">Gestión</li>
 
@@ -107,6 +174,7 @@
     <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('assets/vendors/simple-datatables/simple-datatables.js') }}"></script>
     <script src="{{ asset('js/jquery.validate.min.js') }}"></script>
+    <script src="{{ asset('js/chartjs/Chart.min.js') }}"></script>
     @yield('scripts')
     <script src="{{ asset('assets/js/main.js') }}"></script>
 </body>

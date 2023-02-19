@@ -16,9 +16,9 @@ class CreateTarifasTable extends Migration
         Schema::create('tarifas', function (Blueprint $table) {
             $table->id();
             $table->string('tarifa');
-            $table->bigInteger('precio');
+            $table->float('precio');
             $table->integer('creditos');
-            $table->integer('comision');
+            $table->float('comision');
         });
     }
 

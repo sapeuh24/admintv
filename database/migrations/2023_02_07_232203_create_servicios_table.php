@@ -17,9 +17,12 @@ class CreateServiciosTable extends Migration
             $table->id();
             $table->unsignedBigInteger('id_tarifa')->references('id')->on('tarifas');
             $table->unsignedBigInteger('id_cliente')->references('id')->on('clientes');
-            $table->unsignedBigInteger('id_aplicacion')->references('id')->on('aplicaciones');
+            $table->unsignedBigInteger('id_pasarela')->references('id')->on('pasarelas');
+            $table->unsignedBigInteger('id_usuario')->references('id')->on('users');
             $table->date('fecha_creacion');
             $table->integer('creditos_restantes');
+            $table->enum('estado', ['Activo', 'Anulado']);
+            $table->text('observaciones')->nullable();
         });
     }
 

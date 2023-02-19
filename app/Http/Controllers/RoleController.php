@@ -7,6 +7,7 @@ use Spatie\Permission\Models\Role;
 use Yajra\Datatables\Datatables;
 use Illuminate\Http\Request;
 use App\Http\Requests\UpdateRolRequest;
+use App\Models\Log;
 
 class RoleController extends Controller
 {
@@ -56,6 +57,7 @@ class RoleController extends Controller
             $rol->name = $request->name;
             $rol->syncPermissions($request->permisos);
             $rol->save();
+            Log::saveLogs('Roles', 'Actualizar', $rol->id);
             return back()->with('success', 'Rol actualizado correctamente');
         }
         abort(403);
@@ -70,8 +72,32 @@ class RoleController extends Controller
             if ($rol->users->count() > 0) {
                 return back()->with('error', 'No se puede eliminar el rol porque está siendo usado por algún usuario');
             }
+            Log::saveLogs('Roles', 'Eliminar', $rol->id);
             $rol->delete();
             return back()->with('success', 'Rol eliminado correctamente');
+        }
+        abort(403);
+    }
+
+    public function crearRol(Request $request)
+    {
+        $user = auth()->user();
+
+        if ($user->can('Crear rol')) {
+            $rol = Role::create(['name' => $request->name]);
+            $rol->syncPermissions($request->permisos);
+            Log::saveLogs('Roles', 'Crear', $rol->id);
+            return back()->with('success', 'Rol creado correctamente');
+        }
+        abort(403);
+    }
+
+    public function obtenerPermisos()
+    {
+        $user = auth()->user();
+        if ($user->can('Crear rol')) {
+            $permisos = Permission::all();
+            return response()->json($permisos);
         }
         abort(403);
     }

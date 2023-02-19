@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateActivacionesTable extends Migration
+class CreateServicioAplicacionesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,10 @@ class CreateActivacionesTable extends Migration
      */
     public function up()
     {
-        Schema::create('activaciones', function (Blueprint $table) {
+        Schema::create('servicio_aplicaciones', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('servicio')->references('id')->on('servicios');
-            $table->integer('creditos');
-            $table->date('fecha_inicio');
-            $table->date('fecha_fin');
+            $table->unsignedBigInteger('id_servicio')->references('id')->on('servicios');
+            $table->unsignedBigInteger('id_aplicacion')->references('id')->on('aplicaciones');
             $table->timestamps();
         });
     }
@@ -30,6 +28,6 @@ class CreateActivacionesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('activacions');
+        Schema::dropIfExists('servicio_aplicaciones');
     }
 }

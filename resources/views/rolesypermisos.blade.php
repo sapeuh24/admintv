@@ -22,6 +22,12 @@
                 <div class="card">
                     <div class="card-header">
                         Roles y permisos
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            @if (auth()->user()->hasPermissionTo('Crear rol'))
+                                <button class="btn btn-primary me-md-2" type="button" data-bs-toggle="modal"
+                                    data-bs-target="#modalCreateRole" onclick="obtenerTodosLosPermisos()">Agregar</button>
+                            @endif
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -95,6 +101,41 @@
             @csrf
             @method('DELETE')
         </form>
+    </div>
+    {{-- modal to create a new rol --}}
+    <div class="modal fade" id="modalCreateRole" tabindex="-1" role="dialog" aria-labelledby="modalCreateRoleLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document"
+            style="overflow-y: initial !important">
+            <div class="modal-content" style="max-height: 80vh; overflow-y:auto">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalCreateRoleLabel">Crear rol</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="formCreateRol" action="{{ route('crear_rol') }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="name">Nombre</label>
+                                    <input type="text" value="" class="form-control" name="name" id="name"
+                                        placeholder="Nombre del rol" required>
+                                </div>
+                            </div>
+                        </div>
+                        Permisos del rol
+                        <div class="container" id="contenedor_permisos">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button onclick="crearRol()" class="btn btn-primary" id="btnGuardarCambios">Guardar
+                            cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 @endsection
 @section('scripts')
@@ -246,5 +287,87 @@
                 }
             })
         };
+
+        function crearRol() {
+            event.preventDefault();
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡Los datos se guardaran!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#1266b1',
+                cancelButtonColor: '#f44335',
+                confirmButtonText: 'Sí, crear!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#formCreateRol').submit();
+                }
+            })
+            $('#formCreateRol').validate({
+                rules: {
+                    name: {
+                        required: true,
+                    },
+                },
+                messages: {
+                    name: {
+                        required: "Por favor ingrese un nombre",
+                    },
+                },
+                errorElement: 'span',
+                errorPlacement: function(error, element) {
+                    error.addClass('invalid-feedback');
+                    element.closest('.form-group').append(error);
+                },
+                highlight: function(element, errorClass, validClass) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function(element, errorClass, validClass) {
+                    $(element).removeClass('is-invalid');
+                },
+                submitHandler: function(form) {
+                    setTimeout(function() {
+                        let timerInterval;
+                        Swal.fire({
+                            title: 'Guardando',
+                            html: 'Por favor espere...',
+                            allowOutsideClick: false,
+                            showConfirmButton: false,
+                            timerProgressBar: true,
+                            timer: 2000,
+                            onBeforeOpen: () => {
+                                Swal.showLoading()
+                            },
+                            willClose: () => {
+                                clearInterval(timerInterval)
+                            }
+                        }).then((result) => {
+                            form.submit();
+                        })
+                    });
+                }
+            });
+        }
+
+        function obtenerTodosLosPermisos() {
+            $.ajax({
+                url: "{{ route('obtener_permisos') }}",
+                type: "GET",
+                dataType: "json",
+                success: function(data) {
+                    $('#contenedor_permisos').empty();
+                    $.each(data, function(key, permiso) {
+                        $('#contenedor_permisos').append(`
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="permisos[]" value="${permiso.id}" id="permiso${permiso.id}">
+                                <label class="form-check>label" for="permiso${permiso.id}">
+                                    ${permiso.name}
+                                </label>
+                            </div>
+                        `);
+                    });
+                }
+            });
+        }
     </script>
 @endsection

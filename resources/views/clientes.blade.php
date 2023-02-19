@@ -23,8 +23,10 @@
                     <div class="card-header">
                         Clientes
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button class="btn btn-primary me-md-2" type="button" data-bs-toggle="modal"
-                                data-bs-target="#modal_crear_cliente">Agregar</button>
+                            @if (auth()->user()->hasPermissionTo('Crear cliente'))
+                                <button class="btn btn-primary me-md-2" type="button" data-bs-toggle="modal"
+                                    data-bs-target="#modal_crear_cliente">Agregar</button>
+                            @endif
                         </div>
                     </div>
 
@@ -59,6 +61,7 @@
                                     <th>Fecha creación</th>
                                     <th>Teléfono</th>
                                     <th>Email</th>
+                                    <th>Notas</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -242,6 +245,10 @@
                         name: 'email'
                     },
                     {
+                        data: 'notas',
+                        name: 'notas'
+                    },
+                    {
                         data: null,
                         default: 'null',
                         render: function(data, type, row) {
@@ -250,7 +257,7 @@
                                 '<button type="button" class="btn btn-primary btn-sm" onclick="consultarCliente(' +
                                 data.id + ')">Editar</button>' +
                                 '<?php } ?>' +
-                                '<?php if (Auth::user()->can('Actualizar cliente')) { ?>' +
+                                '<?php if (Auth::user()->can('Ver servicios')) { ?>' +
                                 '<a href={{ route('ver_servicios_cliente', '') }}' + '/' + data
                                 .slug +
                                 ' type="button" class="btn btn-primary btn-sm">Servicios</a>' +
@@ -402,7 +409,7 @@
                 showCancelButton: true,
                 confirmButtonColor: '#1266b1',
                 cancelButtonColor: '#f44335',
-                confirmButtonText: 'Sí, editar!'
+                confirmButtonText: 'Sí, crear!'
             }).then((result) => {
                 if (result.isConfirmed) {
                     $('#form_crear_cliente').submit();

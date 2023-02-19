@@ -22,6 +22,12 @@
                 <div class="card">
                     <div class="card-header">
                         Usuarios
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            @if (auth()->user()->hasPermissionTo('Crear usuario'))
+                                <button class="btn btn-primary me-md-2" type="button" data-bs-toggle="modal"
+                                    data-bs-target="#modalCreateUsuario" onclick="obtenerRoles()">Agregar</button>
+                            @endif
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -79,6 +85,63 @@
                         @csrf
                         <div class="form-group">
                             <label for="nombre">Nombre</label>
+                            <input type="text" class="form-control" id="nombre_editar" name="name"
+                                placeholder="Nombre del usuario" autocomplete="nope">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Correo</label>
+                            <input type="text" class="form-control" id="email_editar" name="email"
+                                placeholder="Correo electrónico del usuario" autocomplete="nope">
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="rol">Rol</label>
+                            <select class="form-select" id="rol_editar" name="rol">
+
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Contraseña</label>
+                            <div class="input-group mb-3">
+                                <input type="password" class="form-control" id="password_editar" name="password"
+                                    placeholder="Contraseña del usuario" autocomplete="new-password">
+                                <button class="btn" type="button" id="button-addon2" onclick="mostrarPassword()"><i
+                                        class="bi bi-eye"></i></button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button onclick="actualizarUsuario()" type="button" class="btn btn-primary">Actualizar</button>
+                </div>
+            </div>
+        </div>
+        <form id="formDeleteUser" action="" method="POST" style="display: none">
+            @csrf
+            @method('DELETE')
+        </form>
+    </div>
+
+    {{-- modal to create a new user --}}
+
+    <div class="modal fade" tabindex="-1" id="modalCreateUsuario">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Crear usuario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ route('crear_usuario') }}" id="form_crear_usuario" method="POST">
+                        @method('POST')
+                        @csrf
+                        <div class="form-group">
+                            <label for="nombre">Nombre</label>
                             <input type="text" class="form-control" id="nombre" name="name"
                                 placeholder="Nombre del usuario" autocomplete="nope">
                         </div>
@@ -111,7 +174,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button onclick="actualizarUsuario()" type="button" class="btn btn-primary">Actualizar</button>
+                    <button onclick="crearUsuario()" type="button" class="btn btn-primary">Crear</button>
                 </div>
             </div>
         </div>
@@ -124,7 +187,7 @@
 @section('scripts')
     <script>
         function mostrarPassword() {
-            var tipo = document.getElementById("password");
+            var tipo = document.getElementById("password") || document.getElementById("password_editar");
             if (tipo.type == "password") {
                 tipo.type = "text";
             } else {
@@ -196,15 +259,15 @@
                 url: "{{ url('admin/consultar_usuario') }}" + '/' + id,
                 type: "GET",
                 success: function(response) {
-                    $('#nombre').val(response.usuario.name);
-                    $('#email').val(response.usuario.email);
-                    $('#rol').empty();
-                    $('#rol').append(`<option value="0">Seleccione un rol</option>`);
+                    $('#nombre_editar').val(response.usuario.name);
+                    $('#email_editar').val(response.usuario.email);
+                    $('#rol_editar').empty();
+                    $('#rol_editar').append(`<option value="0">Seleccione un rol</option>`);
                     response.roles.forEach(rol => {
-                        $('#rol').append(`<option value="${rol.id}">${rol.name}</option>`);
+                        $('#rol_editar').append(`<option value="${rol.id}">${rol.name}</option>`);
                     });
-                    $("#rol option:selected").removeAttr("selected");
-                    $('#rol').val(response.usuario.roles[0].id).change();
+                    $("#rol_editar option:selected").removeAttr("selected");
+                    $('#rol_editar').val(response.usuario.roles[0].id).change();
                     //form auutocomplete off
                     $('#form_actualizar_usuario').attr('autocomplete', 'off');
                     $('#form_actualizar_usuario').removeAttr('autocomplete');
@@ -301,5 +364,112 @@
                 }
             })
         };
+
+        function obtenerRoles() {
+            event.preventDefault();
+            $.ajax({
+                url: "{{ url('admin/obtener_roles') }}",
+                type: "GET",
+                success: function(response) {
+                    $('#rol').empty();
+                    response.data.forEach(rol => {
+                        $('#rol').append(`<option value="${rol.id}">${rol.name}</option>`);
+                    });
+                }
+            })
+        }
+
+        function crearUsuario() {
+            event.preventDefault();
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡Los datos se guardaran!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#1266b1',
+                cancelButtonColor: '#f44335',
+                confirmButtonText: 'Sí, crear!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#form_crear_usuario').submit();
+                }
+            })
+            $('#form_crear_usuario').validate({
+                rules: {
+                    name: {
+                        required: true,
+                        minlength: 3,
+                        maxlength: 191
+                    },
+                    email: {
+                        required: true,
+                        email: true,
+                        minlength: 3,
+                        maxlength: 191
+                    },
+                    password: {
+                        required: true,
+                        minlength: 3,
+                        maxlength: 191
+                    },
+                    rol: {
+                        required: true,
+                    },
+                },
+                messages: {
+                    name: {
+                        required: "El campo nombre es obligatorio",
+                        minlength: "El campo nombre debe tener al menos 3 caracteres",
+                        maxlength: "El campo nombre debe tener máximo 191 caracteres"
+                    },
+                    email: {
+                        required: "El campo email es obligatorio",
+                        email: "El campo email debe ser un email válido",
+                        minlength: "El campo email debe tener al menos 3 caracteres",
+                        maxlength: "El campo email debe tener máximo 191 caracteres"
+                    },
+                    password: {
+                        required: "El campo contraseña es obligatorio",
+                        minlength: "El campo contraseña debe tener al menos 3 caracteres",
+                        maxlength: "El campo contraseña debe tener máximo 191 caracteres"
+                    },
+                    rol: {
+                        required: "El campo rol es obligatorio",
+                    },
+                },
+                errorElement: 'span',
+                errorPlacement: function(error, element) {
+                    error.addClass('invalid-feedback');
+                    element.closest('.form-group').append(error);
+                },
+                highlight: function(element, errorClass, validClass) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function(element, errorClass, validClass) {
+                    $(element).removeClass('is-invalid');
+                },
+                submitHandler: function(form) {
+                    setTimeout(function() {
+                        let timerInterval;
+                        Swal.fire({
+                            title: 'Guardando',
+                            html: 'Por favor espere...',
+                            allowOutsideClick: false,
+                            showConfirmButton: false,
+                            timerProgressBar: true,
+                            timer: 2000,
+                            onBeforeOpen: () => {
+                                Swal.showLoading()
+                            },
+                            willClose: () => {
+                                clearInterval(timerInterval)
+                            }
+                        }).then((result) => {
+                            form.submit();
+                        })
+                    });
+                }
+            });
+        }
     </script>
 @endsection

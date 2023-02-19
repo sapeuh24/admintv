@@ -8,4 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class Activacion extends Model
 {
     use HasFactory;
+
+    protected $table = 'activaciones';
+
+    protected $fillable = [
+        'servicio',
+        'creditos',
+        'fecha_inicio',
+        'fecha_fin',
+    ];
 }

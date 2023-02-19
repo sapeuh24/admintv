@@ -143,6 +143,7 @@ class CreatePermissionTables extends Migration
             'Actualizar usuario',
             'Eliminar usuario',
             'Ver roles y permisos',
+            'Crear rol',
             'Actualizar rol',
             'Eliminar rol',
             'Ver tarifas',
@@ -152,7 +153,25 @@ class CreatePermissionTables extends Migration
             'Ver clientes',
             'Crear cliente',
             'Actualizar cliente',
-            'Eliminar cliente'
+            'Eliminar cliente',
+            'Ver servicios',
+            'Crear servicio',
+            'Gestionar activaciones',
+            'Anular servicio',
+            'Ver anulaciones',
+            'Ver aplicaciones',
+            'Crear aplicacion',
+            'Actualizar aplicacion',
+            'Eliminar aplicacion',
+            'Ver dispositivos',
+            'Crear dispositivo',
+            'Actualizar dispositivo',
+            'Eliminar dispositivo',
+            'Ver pasarelas',
+            'Crear pasarela',
+            'Actualizar pasarela',
+            'Eliminar pasarela',
+            'Ver ventas'
         ];
 
         foreach ($permissionsAdmin as $permission) {
