@@ -25,8 +25,7 @@ class UserController extends Controller
         $user = auth()->user();
 
         if ($user->can('Ver usuarios')) {
-            //ghet the users with their roles
-            $usuarios = User::with('roles')->get();
+            $usuarios = User::with('roles')->where('id_empresa', $user->id_empresa)->get();
             return Datatables::of($usuarios)->toJson();
         }
         abort(403);
@@ -43,6 +42,7 @@ class UserController extends Controller
             if ($request->password != null) {
                 $usuario->password = bcrypt($request->password);
             }
+            $usuario->id_empresa = $user->id_empresa;
             Log::saveLogs('Usuarios', 'Actualizar', $usuario->id);
             $usuario->save();
             return back()->with('success', 'Usuario actualizado correctamente');
@@ -92,6 +92,7 @@ class UserController extends Controller
             $usuario->name = $request->name;
             $usuario->email = $request->email;
             $usuario->password = bcrypt($request->password);
+            $usuario->id_empresa = $user->id_empresa;
             $usuario->save();
             $usuario->assignRole($request->rol);
             Log::saveLogs('Usuarios', 'Crear', $usuario->id);

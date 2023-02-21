@@ -7,6 +7,7 @@ use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Schema;
 use Spatie\Permission\Models\Role;
 use App\Models\User;
+use App\Models\Empresa;
 
 class CreatePermissionTables extends Migration
 {
@@ -130,11 +131,16 @@ class CreatePermissionTables extends Migration
 
         $roleAdmin = Role::create(['name' => 'Administrador', 'guard_name' => 'web']);
 
+        $empresa = Empresa::create([
+            'nombre' => 'RoloxTV',
+        ]);
+
         $user = User::create([
             'name' => 'Abrahan Carballo López',
             'email' => 'admintv@mail.com',
             'password' => bcrypt('12345678'),
             'telefono' => 1234567,
+            'id_empresa' => 1,
         ]);
 
         $permissionsAdmin = [
