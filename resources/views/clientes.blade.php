@@ -103,7 +103,7 @@
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <label for="facebook_enlace">Facebook</label>
-                                    <input type="number" class="form-control" id="facebook_enlace_editar"
+                                    <input type="text" class="form-control" id="facebook_enlace_editar"
                                         name="facebook_enlace" placeholder="Enlace de perfil de facebook"
                                         autocomplete="nope">
                                 </div>
@@ -167,7 +167,7 @@
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <label for="facebook_enlace">Facebook</label>
-                                    <input type="number" class="form-control" id="facebook_enlace"
+                                    <input type="text" class="form-control" id="facebook_enlace"
                                         name="facebook_enlace" placeholder="Enlace de perfil de facebook"
                                         autocomplete="nope">
                                 </div>

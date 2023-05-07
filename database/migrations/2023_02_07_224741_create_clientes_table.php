@@ -24,6 +24,7 @@ class CreateClientesTable extends Migration
             $table->text('notas')->nullable();
             $table->unsignedBigInteger('id_ciudad')->references('id')->on('ciudades');
             $table->unsignedBigInteger('id_usuario')->references('id')->on('users');
+            $table->unsignedBigInteger('id_empresa')->references('id')->on('empresas');
         });
     }
 

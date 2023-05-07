@@ -17,4 +17,9 @@ class Activacion extends Model
         'fecha_inicio',
         'fecha_fin',
     ];
+
+    public function servicio()
+    {
+        return $this->belongsTo(Servicio::class, 'servicio');
+    }
 }

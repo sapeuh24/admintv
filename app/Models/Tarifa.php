@@ -14,7 +14,13 @@ class Tarifa extends Model
         'precio',
         'creditos',
         'comision',
+        'id_empresa'
     ];
 
     public $timestamps = false;
+
+    public function empresa()
+    {
+        return $this->belongsTo(Empresa::class);
+    }
 }

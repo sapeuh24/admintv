@@ -77,6 +77,14 @@
                                         <input type="date" class="form-control" name="fecha_final" id="fecha_final">
                                     </div>
                                 </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="aplicacion">Aplicación</label>
+                                        <select class="form-control" name="aplicacion" id="aplicacion">
+
+                                        </select>
+                                    </div>
+                                </div>
                                 <div class="row my-2">
                                     <div class="col-sm-12">
                                         <button class="btn float-end btn-primary" onclick="refrescarConsulta()"
@@ -96,6 +104,8 @@
                                     <th>Vendedor</th>
                                     <th>Cliente</th>
                                     <th>Tarifa</th>
+                                    <th>Creditos</th>
+                                    <th>Aplicaciones</th>
                                     <th>Fecha</th>
                                     <th>Pasarela</th>
                                     <th>Valor venta</th>
@@ -110,6 +120,8 @@
                                     <th>Vendedor</th>
                                     <th>Cliente</th>
                                     <th>Tarifa</th>
+                                    <th>Creditos</th>
+                                    <th>Aplicaciones</th>
                                     <th>Fecha</th>
                                     <th>Pasarela</th>
                                     <th>Valor venta</th>
@@ -132,6 +144,7 @@
         $(document).ready(function() {
             obtener_usuarios_vendedores();
             obtener_pasarelas();
+            obtener_aplicaciones_json();
             $('#tableventas').DataTable({
                 dom: 'Bfrtip',
                 buttons: [
@@ -163,6 +176,7 @@
                     pasarela: $('#pasarela').val(),
                     fecha_inicial: $('#fecha_inicial').val(),
                     fecha_final: $('#fecha_final').val(),
+                    aplicacion: $('#aplicacion').val(),
                 },
                 success: function(data) {
                     console.log(data);
@@ -200,17 +214,15 @@
                                     i : 0;
                             };
 
-                            // Total over all pages
                             total = api
-                                .column(5)
+                                .column(3)
                                 .data()
                                 .reduce(function(a, b) {
                                     return intVal(a) + intVal(b);
                                 }, 0);
 
-                            // Total over this page
                             pageTotal = api
-                                .column(5, {
+                                .column(3, {
                                     page: 'current'
                                 })
                                 .data()
@@ -218,22 +230,21 @@
                                     return intVal(a) + intVal(b);
                                 }, 0);
 
-                            // Update footer
-                            $(api.column(5).footer()).html(
-                                '$' + pageTotal + ' ( $' + total + ' total)'
+                            $(api.column(3).footer()).html(
+                                pageTotal.toFixed(2) + ' ( ' + total.toFixed(2) +
+                                ' total)'
                             );
 
                             // Total over all pages
                             total = api
-                                .column(6)
+                                .column(7)
                                 .data()
                                 .reduce(function(a, b) {
                                     return intVal(a) + intVal(b);
                                 }, 0);
 
-                            // Total over this page
                             pageTotal = api
-                                .column(6, {
+                                .column(7, {
                                     page: 'current'
                                 })
                                 .data()
@@ -241,8 +252,33 @@
                                     return intVal(a) + intVal(b);
                                 }, 0);
 
+                            $(api.column(7).footer()).html(
+                                '$' + pageTotal.toFixed(2) + ' ( $' + total.toFixed(2) +
+                                ' total)'
+                            );
+
+                            // Total over all pages
+                            total = api
+                                .column(8)
+                                .data()
+                                .reduce(function(a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+                            total = total.toFixed(2);
+
+                            // Total over this page
+                            pageTotal = api
+                                .column(8, {
+                                    page: 'current'
+                                })
+                                .data()
+                                .reduce(function(a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+                            pageTotal = pageTotal.toFixed(2);
+
                             // Update footer
-                            $(api.column(6).footer()).html(
+                            $(api.column(8).footer()).html(
                                 '$' + pageTotal + ' ( $' + total + ' total)'
                             );
                         },
@@ -257,6 +293,19 @@
                             {
                                 data: 'tarifa.tarifa',
                                 name: 'tarifa.tarifa'
+                            },
+                            {
+                                data: 'activaciones[0].creditos',
+                                name: 'activaciones[0].creditos'
+                            },
+                            {
+                                data: null,
+                                default: 'null',
+                                render: function(data, type, row) {
+                                    return data.aplicaciones.map(function(aplicacion) {
+                                        return '<li>' + aplicacion.nombre + '</li>';
+                                    }).join('');
+                                }
                             },
                             {
                                 data: 'fecha_creacion',
@@ -312,6 +361,25 @@
                     $('#pasarela').append('<option value="all">Todas</option>');
                     $.each(data, function(i, item) {
                         $('#pasarela').append('<option value="' + item.id + '">' + item.nombre +
+                            '</option>');
+                    });
+                },
+                error: function(data) {
+                    console.log(data);
+                }
+            });
+        }
+
+        function obtener_aplicaciones_json() {
+            $.ajax({
+                url: "{{ route('obtener_aplicaciones_json') }}",
+                type: "GET",
+                success: function(data) {
+                    console.log(data);
+                    $('#aplicacion').empty();
+                    $('#aplicacion').append('<option value="all">Todas</option>');
+                    $.each(data, function(i, item) {
+                        $('#aplicacion').append('<option value="' + item.id + '">' + item.nombre +
                             '</option>');
                     });
                 },

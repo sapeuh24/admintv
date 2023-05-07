@@ -10,6 +10,9 @@ use App\Models\Activacion;
 use App\Models\ServicioAplicaciones;
 use App\Models\ServicioDispositivos;
 use App\Models\Log;
+use App\Models\Abono;
+use App\Models\EstadoAbono;
+
 
 use Illuminate\Http\Request;
 
@@ -29,7 +32,7 @@ class ClienteController extends Controller
     {
         $user = auth()->user();
         if ($user->can('Ver clientes')) {
-            $clientes = Cliente::all();
+            $clientes = Cliente::where('id_empresa', $user->id_empresa)->get();
             return Datatables::of($clientes)->toJson();
         }
         abort(403, 'No tienes permiso para ver esta página');
@@ -61,7 +64,8 @@ class ClienteController extends Controller
                 'notas' => $request->notas,
                 'slug' => $slug,
                 'id_ciudad' => $request->id_ciudad,
-                'id_usuario' => $user->id
+                'id_usuario' => $user->id,
+                'id_empresa' => $user->id_empresa,
             ]);
             Log::saveLogs('Clientes', 'Crear', $cliente->id);
             return back()->with('success', 'Cliente creado correctamente');
@@ -95,7 +99,7 @@ class ClienteController extends Controller
         $user = auth()->user();
         if ($user->can('Ver clientes')) {
             $cliente = Cliente::find($id);
-            $servicios = $cliente->servicios->load('aplicaciones', 'dispositivos', 'tarifa');
+            $servicios = $cliente->servicios->load('aplicaciones', 'dispositivos', 'tarifa', 'estado_abono');
             return Datatables::of($servicios)->toJson();
         }
         abort(403, 'No tienes permiso para ver esta página');
@@ -104,14 +108,20 @@ class ClienteController extends Controller
     public function crearServicio(Request $request)
     {
         $user = auth()->user();
+        $id_usuario = '';
+        if($request->vendedor) {
+            $id_usuario = $request->id_usuario;
+        } else {
+            $id_usuario = $user->id;
+        }
         if ($user->can('Crear servicio')) {
             $cliente = Cliente::find($request->id_cliente);
             $servicio = Servicio::create([
                 'id_tarifa' => $request->id_tarifa,
                 'id_cliente' => $request->id_cliente,
                 'id_pasarela' => $request->id_pasarela,
-                'id_usuario' => $user->id,
-                'fecha_creacion' => Date('Y-m-d'),
+                'id_usuario' => $id_usuario,
+                'fecha_creacion' => $request->fecha_creacion,
                 'creditos_restantes' => $request->creditos,
                 'estado' => 'Activo'
             ]);
@@ -129,6 +139,12 @@ class ClienteController extends Controller
                     'id_dispositivo' => $dispositivo
                 ]);
             }
+
+            $estado_abono = EstadoAbono::create([
+                'estado_abono' => 'Incompleto',
+                'id_abono' => $servicio->id
+            ]);
+
             Log::saveLogs('Servicios', 'Crear', $servicio->id);
             return back()->with('success', 'Servicio creado correctamente');
         }
@@ -140,7 +156,7 @@ class ClienteController extends Controller
         $user = auth()->user();
         if ($user->can('Ver clientes')) {
             $servicio = Servicio::find($id);
-            $activaciones = $servicio->activaciones;
+            $activaciones = $servicio;
             return Datatables::of($activaciones)->toJson();
         }
         abort(403, 'No tienes permiso para ver esta página');
@@ -210,5 +226,68 @@ class ClienteController extends Controller
             return Datatables::of($anulaciones)->toJson();
         }
         abort(403, 'No tienes permiso para ver esta página');
+    }
+
+    public function eliminarCliente($id)
+    {
+        $user = auth()->user();
+        if ($user->can('Eliminar cliente')) {
+            $cliente = Cliente::find($id);
+            $cliente->delete();
+            Log::saveLogs('Clientes', 'Eliminar', $cliente->id);
+            return back()->with('success', 'Cliente eliminado correctamente');
+        }
+        abort(403, 'No tienes permiso para ver esta página');
+    }
+
+    public function obtenerAbonosServicio($id)
+    {
+        $user = auth()->user();
+        if ($user->can('Ver clientes')) {
+            $servicio = Servicio::find($id);
+            $abonos = $servicio->abonos;
+            return response()->json($abonos);
+        }
+        abort(403, 'No tienes permiso para ver esta página');
+    }
+
+    public function cargarAbono(Request $request)
+    {
+        $servicio = Servicio::find($request->id_servicio);
+        $abono = Abono::create([
+            'id_servicio' => $request->id_servicio,
+            'fecha' => Date('Y-m-d'),
+            'hora' => Date('H:i:s'),
+            'abono' => $request->abono
+        ]);
+        $abono->save();
+        Log::saveLogs('Abonos', 'Crear', $abono->id);
+        return back()->with('success', 'Abono cargado correctamente');
+    }
+
+    public function actualizarEstadoAbonos($id)
+    {
+        $abono = Servicio::find($id)->estado_abono;
+        if($abono == null) {
+            $abono = EstadoAbono::create([
+                'estado_abono' => 'Incompleto',
+                'id_abono' => $id
+            ]);
+        }
+        if ($abono->estado_abono == 'Incompleto') {
+            $abono->estado_abono = 'Completo';
+            $abono->save();
+            Log::saveLogs('Abonos', 'Actualizar', $abono->id);
+            return response()->json([
+                'success' => 'Abono actualizado correctamente'
+            ]);
+        } else {
+            $abono->estado_abono = 'Incompleto';
+            $abono->save();
+            Log::saveLogs('Abonos', 'Actualizar', $abono->id);
+            return response()->json([
+                'success' => 'Abono actualizado correctamente'
+            ]);
+        }
     }
 }

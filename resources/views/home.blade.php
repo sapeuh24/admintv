@@ -18,10 +18,11 @@
                     </div>
                 </div>
             </div>
+
             <section class="section">
                 <div class="card">
                     <div class="card-header">
-                        Pasarelas
+                        Reportes
                     </div>
                     <div class="card-body">
                         <div class="row d-flex">
@@ -42,29 +43,32 @@
                     </div>
                 </div>
             </section>
-            <section class="section">
-                <div class="card">
-                    <div class="card-header">
-                        Registro de acciones
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped" id="table_logs">
-                                <thead>
-                                    <tr>
-                                        <th>Usuario</th>
-                                        <th>Acción</th>
-                                        <th>Tabla</th>
-                                        <th>Fecha</th>
-                                        <th>Registro</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
+
+            @if (auth()->user()->hasRole('Administrador'))
+                <section class="section">
+                    <div class="card">
+                        <div class="card-header">
+                            Registro de acciones
                         </div>
-                    </div>
-            </section>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="table_logs">
+                                    <thead>
+                                        <tr>
+                                            <th>Usuario</th>
+                                            <th>Acción</th>
+                                            <th>Tabla</th>
+                                            <th>Fecha</th>
+                                            <th>Registro</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                </section>
+            @endif
         </div>
     </div>
 @endsection

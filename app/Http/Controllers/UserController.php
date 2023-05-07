@@ -25,7 +25,11 @@ class UserController extends Controller
         $user = auth()->user();
 
         if ($user->can('Ver usuarios')) {
-            $usuarios = User::with('roles')->where('id_empresa', $user->id_empresa)->get();
+            if ($user->hasRole('Administrador')) {
+                $usuarios = User::with('roles')->get();
+            } else {
+                $usuarios = User::with('roles')->where('id_empresa', $user->id_empresa)->get();
+            }
             return Datatables::of($usuarios)->toJson();
         }
         abort(403);
@@ -42,7 +46,7 @@ class UserController extends Controller
             if ($request->password != null) {
                 $usuario->password = bcrypt($request->password);
             }
-            $usuario->id_empresa = $user->id_empresa;
+            $usuario->id_empresa = $request->empresa;
             Log::saveLogs('Usuarios', 'Actualizar', $usuario->id);
             $usuario->save();
             return back()->with('success', 'Usuario actualizado correctamente');
@@ -68,7 +72,7 @@ class UserController extends Controller
         $user = auth()->user();
 
         if ($user->can('Ver usuarios')) {
-            $usuario = User::find($id)->load('roles');
+            $usuario = User::find($id)->load('roles', 'empresa');
             $roles = Role::all();
             return response()->json([
                 'usuario' => $usuario,
@@ -83,7 +87,6 @@ class UserController extends Controller
         $user = auth()->user();
 
         if ($user->can('Crear usuario')) {
-            //validate if the email is unique
             $user_validate = User::where('email', $request->email)->first();
             if ($user_validate != null) {
                 return back()->with('error', 'El correo ya se encuentra registrado');
@@ -92,7 +95,7 @@ class UserController extends Controller
             $usuario->name = $request->name;
             $usuario->email = $request->email;
             $usuario->password = bcrypt($request->password);
-            $usuario->id_empresa = $user->id_empresa;
+            $usuario->id_empresa = $request->empresa;
             $usuario->save();
             $usuario->assignRole($request->rol);
             Log::saveLogs('Usuarios', 'Crear', $usuario->id);

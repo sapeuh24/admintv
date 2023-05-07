@@ -70,6 +70,24 @@
                             </li>
                         @endif
 
+                        @if (auth()->user()->can('Ver empresas'))
+                            <li class="sidebar-item">
+                                <a href="{{ route('empresas') }}" class='sidebar-link'>
+                                    <i class="bi bi-building"></i>
+                                    <span>Empresas</span>
+                                </a>
+                            </li>
+                        @endif
+
+                        @if (auth()->user()->hasRole('Vendedor'))
+                            <li class="sidebar-item">
+                                <a href="{{ route('mis_ventas') }}" class='sidebar-link'>
+                                    <i class="bi bi-clipboard-data"></i>
+                                    <span>Mis ventas</span>
+                                </a>
+                            </li>
+                        @endif
+
                         @if (auth()->user()->can('Ver ventas'))
                             <li class="sidebar-item">
                                 <a href="{{ route('ventas') }}" class='sidebar-link'>

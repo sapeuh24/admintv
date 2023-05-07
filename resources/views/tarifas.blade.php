@@ -162,6 +162,7 @@
                                     <input type="number" class="form-control" id="comision" name="comision"
                                         placeholder="Comisión en solo números" autocomplete="nope" required>
                                 </div>
+                                <input type="hidden" name="id_empresa" value="{{ Auth::user()->id_empresa }}">
                             </div>
                         </div>
                     </form>

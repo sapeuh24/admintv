@@ -19,6 +19,7 @@ class CreateTarifasTable extends Migration
             $table->float('precio');
             $table->integer('creditos');
             $table->float('comision');
+            $table->unsignedBigInteger('id_empresa')->references('id')->on('empresas');
         });
     }
 

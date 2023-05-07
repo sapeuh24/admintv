@@ -17,4 +17,9 @@ class Empresa extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public function tarifas()
+    {
+        return $this->hasMany(Tarifa::class);
+    }
 }

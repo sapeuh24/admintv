@@ -57,4 +57,14 @@ class Servicio extends Model
     {
         return $this->belongsTo(User::class, 'id_usuario');
     }
+
+    public function abonos()
+    {
+        return $this->hasMany(Abono::class, 'id_servicio');
+    }
+
+    public function estado_abono()
+    {
+        return $this->belongsTo(EstadoAbono::class, 'id', 'id_abono');
+    }
 }

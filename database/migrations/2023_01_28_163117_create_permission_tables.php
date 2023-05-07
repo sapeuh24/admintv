@@ -177,7 +177,11 @@ class CreatePermissionTables extends Migration
             'Crear pasarela',
             'Actualizar pasarela',
             'Eliminar pasarela',
-            'Ver ventas'
+            'Ver ventas',
+            'Ver empresas',
+            'Crear empresa',
+            'Actualizar empresa',
+            'Eliminar empresa',
         ];
 
         foreach ($permissionsAdmin as $permission) {

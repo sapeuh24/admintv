@@ -63,6 +63,7 @@
                                     <th>Aplicaciones</th>
                                     <th>Dispositivos</th>
                                     <th>Estado</th>
+                                    <th>Estado pago</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -181,6 +182,25 @@
                                 <input type="hidden" value="{{ $cliente->id }}" name="id_cliente">
                             </div>
                         </div>
+                        <div class="row">
+                            @if (auth()->user()->hasRole('Administrador'))
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="vendedor">Vendedor</label>
+                                        <select class="form-control" name="vendedor" id="vendedor">
+
+                                        </select>
+                                    </div>
+                                </div>
+                            @endif
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="fecha_creacion">Fecha venta</label>
+                                    <input type="date" class="form-control" name="fecha_creacion" id="fecha_creacion"
+                                        required>
+                                </div>
+                            </div>
+                        </div>
                         <hr>
                         <div class="row">
                             <div class="col-md-6">
@@ -199,6 +219,7 @@
                                     </select>
                                 </div>
                             </div>
+
                         </div>
                     </form>
                 </div>
@@ -210,6 +231,57 @@
         </div>
     </div>
 
+    <div class="modal fade" tabindex="-1" id="modal_abonos">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Abonos</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                </h5>
+                <form action="{{ route('cargar_abono') }}" id="form_cargar_abono" method="POST">
+                    <div class="modal-body">
+                        @method('POST')
+                        @csrf
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label for="abono">Abono</label>
+                                    <input type="text" class="form-control" id="abono" name="abono"
+                                        autocomplete="nope" required>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        {{-- listado de abonos --}}
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <table class="table" id="tableabonos">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Hora</th>
+                                            <th>Abono</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tdoby_abonos">
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="id_servicio" id="id_servicio_abonar">
+                    <div class="modal-footer">
+                        <button type="button" onclick="actualizarEstadoAbonos()" class="btn btn-success">Cambiar
+                            estado</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-primary">Cargar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <div class="modal fade" tabindex="-1" id="modal_anular_servicio">
         <div class="modal-dialog">
@@ -252,6 +324,7 @@
 @section('scripts')
     <script>
         $(document).ready(function() {
+            obtener_usuarios_vendedores();
             $('#tableservicios').DataTable({
                 processing: true,
                 serverSide: true,
@@ -294,6 +367,15 @@
                         data: null,
                         default: 'null',
                         render: function(data, type, row) {
+                            return data.estado_abono.estado_abono == null ? 'No disponible' : data
+                                .estado_abono.estado_abono;
+                        }
+                    },
+
+                    {
+                        data: null,
+                        default: 'null',
+                        render: function(data, type, row) {
                             return '<div class="btn-group" role="group" aria-label="Basic example">' +
                                 '<?php if (Auth::user()->can('Gestionar activaciones')) { ?>' +
                                 '<button type="button" class="btn btn-primary btn-sm" onclick="gestionarActivaciones(' +
@@ -302,6 +384,10 @@
                                 '<?php if (Auth::user()->can('Anular servicio')) { ?>' +
                                 '<button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modal_anular_servicio" onclick="anularServicio(' +
                                 data.id + ')">Anular</button>' +
+                                '<?php } ?>' +
+                                '<?php if (Auth::user()->can('Gestionar activaciones')) { ?>' +
+                                '<button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modal_abonos" onclick="abonarServicio(' +
+                                data.id + ')">Abonos</button>' +
                                 '<?php } ?>' +
                                 '</div>';
                         }
@@ -394,6 +480,25 @@
                     $('#creditos').val(response.creditos);
                 }
             })
+        }
+
+        function obtener_usuarios_vendedores() {
+            $.ajax({
+                url: "{{ route('obtener_usuarios_vendedores') }}",
+                type: "GET",
+                success: function(data) {
+                    console.log(data);
+                    $('#vendedor').empty();
+                    $('#vendedor').append('<option value="">Todos</option>');
+                    $.each(data, function(i, item) {
+                        $('#vendedor').append('<option value="' + item.id + '">' + item.name +
+                            '</option>');
+                    });
+                },
+                error: function(data) {
+                    console.log(data);
+                }
+            });
         }
 
         function crearServicio() {
@@ -606,6 +711,50 @@
                     });
                 }
             });
+        }
+
+        function abonarServicio(id) {
+            $('#id_servicio_abonar').val(id);
+            $.ajax({
+                url: "{{ url('admin/obtener_abonos_servicio') }}" + '/' + id,
+                type: "GET",
+                success: function(response) {
+                    console.log(response);
+                    $('#tdoby_abonos').empty();
+                    response.forEach(element => {
+                        $('#tableabonos').append('<tr><td>' + element.fecha + '</td><td>' + element
+                            .hora + '</td><td>' + element.abono + '</td></tr>');
+                        $('#estado').html(element.estado);
+                    });
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            })
+        }
+
+        function actualizarEstadoAbonos() {
+            var id_servicio = $('#id_servicio_abonar').val();
+            console.log(id_servicio);
+            $.ajax({
+                url: "{{ url('admin/actualizar_estado_abonos') }}" + '/' + id_servicio,
+                type: "GET",
+                success: function(response) {
+                    console.log(response);
+                    $('#tableservicios').DataTable().ajax.reload();
+                    $('#modal_abonos').modal('hide');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Estado actualizado con éxito',
+                        showConfirmButton: false,
+                        timer: 2500
+                    })
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            })
+
         }
     </script>
 @endsection

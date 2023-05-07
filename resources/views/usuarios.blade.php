@@ -104,14 +104,22 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="empresa_editar">Empresa</label>
+                            <select class="form-select" id="empresa_editar" name="empresa">
+                            </select>
+                        </div>
+
+                        <div class="form-group">
                             <label for="email">Contraseña</label>
                             <div class="input-group mb-3">
                                 <input type="password" class="form-control" id="password_editar" name="password"
                                     placeholder="Contraseña del usuario" autocomplete="new-password">
-                                <button class="btn" type="button" id="button-addon2" onclick="mostrarPassword()"><i
-                                        class="bi bi-eye"></i></button>
+                                <button class="btn" type="button" id="button-addon2"
+                                    onclick="mostrarPasswordEditar()"><i class="bi bi-eye"></i></button>
                             </div>
                         </div>
+
+
 
                     </form>
                 </div>
@@ -161,6 +169,13 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="empresa">Empresa</label>
+                            <select class="form-select" id="empresa" name="empresa">
+
+                            </select>
+                        </div>
+
+                        <div class="form-group">
                             <label for="email">Contraseña</label>
                             <div class="input-group mb-3">
                                 <input type="password" class="form-control" id="password" name="password"
@@ -169,6 +184,7 @@
                                         class="bi bi-eye"></i></button>
                             </div>
                         </div>
+
 
                     </form>
                 </div>
@@ -187,7 +203,22 @@
 @section('scripts')
     <script>
         function mostrarPassword() {
-            var tipo = document.getElementById("password") || document.getElementById("password_editar");
+            var tipo = document.getElementById("password");
+            if (tipo.type == "password") {
+                tipo.type = "text";
+            } else {
+                tipo.type = "password";
+            }
+            var icon = document.getElementById("button-addon2");
+            if (icon.innerHTML == '<i class="bi bi-eye"></i>') {
+                icon.innerHTML = '<i class="bi bi-eye-slash"></i>';
+            } else {
+                icon.innerHTML = '<i class="bi bi-eye"></i>';
+            }
+        }
+
+        function mostrarPasswordEditar() {
+            var tipo = document.getElementById("password_editar");
             if (tipo.type == "password") {
                 tipo.type = "text";
             } else {
@@ -249,7 +280,26 @@
                     },
                 },
             });
+            consultarEmpresasJSON();
         });
+
+        function consultarEmpresasJSON() {
+            $.ajax({
+                url: "{{ url('admin/consultar_empresas_json') }}",
+                type: "GET",
+                success: function(response) {
+                    $('#empresa').empty();
+                    /* $('#empresa_editar').empty(); */
+                    response.forEach(empresa => {
+                        $('#empresa').append(
+                            `<option value="${empresa.id}">${empresa.nombre}</option>`);
+                        $('#empresa_editar').append(
+                            `<option value="${empresa.id}">${empresa.nombre}</option>`);
+                    });
+                }
+            });
+        }
+
 
         function consultarUsuario(id) {
             $('#form_actualizar_usuario').attr('action', 'actualizar_usuario/' + id);
@@ -268,28 +318,25 @@
                     });
                     $("#rol_editar option:selected").removeAttr("selected");
                     $('#rol_editar').val(response.usuario.roles[0].id).change();
-                    //form auutocomplete off
+                    $('#empresa_editar').empty();
+
+                    $.ajax({
+                        url: "{{ url('admin/consultar_empresas_json') }}",
+                        type: "GET",
+                        success: function(data) {
+                            data.forEach(empresa => {
+                                $('#empresa_editar').append(
+                                    `<option value="${empresa.id}">${empresa.nombre}</option>`
+                                );
+                            });
+                            $("#empresa_editar option[value='" + response.usuario.empresa.id + "']")
+                                .attr('selected',
+                                    'selected');
+                            $('empresa_editar').change();
+                        }
+                    });
                     $('#form_actualizar_usuario').attr('autocomplete', 'off');
                     $('#form_actualizar_usuario').removeAttr('autocomplete');
-                    let permisos_rol = response.rol.permissions;
-                    let permisos = response.permisos;
-                    console.log(response);
-                    permisos.forEach(permiso => {
-                        let checked = '';
-                        permisos_rol.forEach(permiso_rol => {
-                            if (permiso_rol.id == permiso.id) {
-                                checked = 'checked';
-                            }
-                        });
-                        $('#permisos').append(`
-                            <div class="form-check">
-                                <input class="form-check-input" name="permisos[]" type="checkbox" value="${permiso.id}" id="permiso_${permiso.id}" ${checked}>
-                                <label class="form-check-label" for="permiso_${permiso.id}">
-                                    ${permiso.name}
-                                </label>
-                            </div>
-                        `);
-                    });
                 }
             })
         }

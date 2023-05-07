@@ -26,7 +26,7 @@ class TarifaController extends Controller
     {
         $user = auth()->user();
         if ($user->can('Ver tarifas')) {
-            $tarifas = Tarifa::all();
+            $tarifas = Tarifa::where('id_empresa', $user->id_empresa)->get();
             return Datatables::of($tarifas)->toJson();
         }
         abort(403, 'No tienes permiso para ver esta página');
@@ -34,12 +34,8 @@ class TarifaController extends Controller
 
     public function consultarTarifa($id)
     {
-        $user = auth()->user();
-        if ($user->can('Ver tarifas')) {
-            $tarifa = Tarifa::find($id);
-            return response()->json($tarifa);
-        }
-        abort(403, 'No tienes permiso para ver esta página');
+        $tarifa = Tarifa::find($id);
+        return response()->json($tarifa);
     }
 
     public function actualizarTarifa(Request $request, $id)
@@ -83,14 +79,18 @@ class TarifaController extends Controller
 
     public function obtenerTarifasJSON()
     {
-        $tarifas = Tarifa::get();
+        $user = auth()->user();
+
+        $tarifas = Tarifa::where('id_empresa', $user->id_empresa)->get();
 
         return response()->json($tarifas);
     }
 
     public function obtenerPasarelasJSON()
     {
-        $pasarelas = Pasarela::get();
+        $user = auth()->user();
+
+        $pasarelas = Pasarela::where('id_empresa', $user->id_empresa)->get();
 
         return response()->json($pasarelas);
     }

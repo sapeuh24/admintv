@@ -103,6 +103,7 @@ Route::group(['middleware' => 'auth'], function () {
     //reporte ventas
     Route::get('admin/reporte_servicios', [App\Http\Controllers\ReporteController::class, 'reporteServicios'])->name('reporte_servicios');
     Route::get('admin/ventas', [App\Http\Controllers\ReporteController::class, 'verVentas'])->name('ventas');
+    Route::get('admin/mis_ventas', [App\Http\Controllers\ReporteController::class, 'verMisVentas'])->name('mis_ventas');
     Route::get('admin/reporte_servicios', [App\Http\Controllers\ReporteController::class, 'reporteServicios'])->name('reporte_servicios');
     //obtenerUsuariosVendedores
     Route::get('admin/obtener_usuarios_vendedores', [App\Http\Controllers\ReporteController::class, 'obtenerUsuariosVendedores'])->name('obtener_usuarios_vendedores');
@@ -110,4 +111,17 @@ Route::group(['middleware' => 'auth'], function () {
     //rutas para anulaciones
     Route::get('admin/anulaciones', [App\Http\Controllers\ClienteController::class, 'verAnulaciones'])->name('anulaciones');
     Route::get('admin/obtener_anulaciones', [App\Http\Controllers\ClienteController::class, 'obtenerAnulaciones'])->name('obtener_anulaciones');
+
+    //rutas para empresa
+    Route::get('admin/empresa', [App\Http\Controllers\EmpresaController::class, 'verEmpresas'])->name('empresas');
+    Route::get('admin/obtener_empresas', [App\Http\Controllers\EmpresaController::class, 'obtenerEmpresas'])->name('obtener_empresas');
+    Route::put('admin/actualizar_empresa/{id}', [App\Http\Controllers\EmpresaController::class, 'actualizarEmpresa'])->name('actualizar_empresa');
+    Route::delete('admin/eliminar_empresa/{id}', [App\Http\Controllers\EmpresaController::class, 'eliminarEmpresa'])->name('eliminar_empresa');
+    Route::get('admin/consultar_empresas_json', [App\Http\Controllers\EmpresaController::class, 'consultarEmpresasJSON'])->name('consultar_empresas_json');
+    Route::post('admin/crear_empresa', [App\Http\Controllers\EmpresaController::class, 'crearEmpresa'])->name('crear_empresa');
+
+    //rutas para abonos
+    Route::post('admin/cargar_abono', [App\Http\Controllers\ClienteController::class, 'cargarAbono'])->name('cargar_abono');
+    Route::get('admin/obtener_abonos_servicio/{id}', [App\Http\Controllers\ClienteController::class, 'obtenerAbonosServicio'])->name('obtener_abonos_servicio');
+    Route::get('admin/actualizar_estado_abonos/{id}', [App\Http\Controllers\ClienteController::class, 'actualizarEstadoAbonos'])->name('actualizar_estado_abonos');
 });

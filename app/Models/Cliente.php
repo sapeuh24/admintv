@@ -19,6 +19,7 @@ class Cliente extends Model
         'slug',
         'id_ciudad',
         'id_usuario',
+        'id_empresa',
     ];
 
     public $timestamps = false;
