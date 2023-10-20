@@ -12,14 +12,16 @@ class Activaciones extends Mailable
     use Queueable;
     use SerializesModels;
 
+    public $activ;
+
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($activ)
     {
-        //
+        $this->activ = $activ;
     }
 
     /**
@@ -31,6 +33,6 @@ class Activaciones extends Mailable
     {
         return $this->subject('Activaciones de usuarios')
                     ->view('emails.activaciones')
-                    ->with('activaciones', $activaciones);
+                    ->with('activaciones', $this->activ);
     }
 }

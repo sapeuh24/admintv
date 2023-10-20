@@ -18,8 +18,8 @@
                     </div>
                 </div>
             </div>
-
-            <section class="section">
+            
+             {{-- <section class="section">
                 <div class="card">
                     <div class="card-header">
                         Reportes
@@ -39,11 +39,11 @@
                                 </div>
                             </div>
                         </div>
-
+  
                     </div>
                 </div>
-            </section>
-
+            </section> --}}
+            {{--
             @if (auth()->user()->hasRole('Administrador'))
                 <section class="section">
                     <div class="card">
@@ -68,7 +68,7 @@
                             </div>
                         </div>
                 </section>
-            @endif
+            @endif --}}
         </div>
     </div>
 @endsection

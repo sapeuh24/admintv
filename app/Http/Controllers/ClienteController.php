@@ -110,7 +110,7 @@ class ClienteController extends Controller
         $user = auth()->user();
         $id_usuario = '';
         if($request->vendedor) {
-            $id_usuario = $request->id_usuario;
+            $id_usuario = $request->vendedor;
         } else {
             $id_usuario = $user->id;
         }
@@ -155,8 +155,7 @@ class ClienteController extends Controller
     {
         $user = auth()->user();
         if ($user->can('Ver clientes')) {
-            $servicio = Servicio::find($id);
-            $activaciones = $servicio;
+            $activaciones = Activacion::where('servicio', $id)->get();
             return Datatables::of($activaciones)->toJson();
         }
         abort(403, 'No tienes permiso para ver esta página');

@@ -117,7 +117,6 @@
                                             <th>Fecha inicio</th>
                                             <th>Fecha fin</th>
                                             <th>Creditos</th>
-                                            <th>Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -367,7 +366,7 @@
                         data: null,
                         default: 'null',
                         render: function(data, type, row) {
-                            return data.estado_abono.estado_abono == null ? 'No disponible' : data
+                            return data.estado_abono == null ? 'No disponible' : data
                                 .estado_abono.estado_abono;
                         }
                     },
@@ -582,18 +581,6 @@
                         data: 'creditos',
                         name: 'creditos'
                     },
-                    {
-                        data: null,
-                        default: 'null',
-                        render: function(data, type, row) {
-                            return '<div class="btn-group" role="group" aria-label="Basic example">' +
-                                '<?php if (Auth::user()->can('Gestionar activaciones')) { ?>' +
-                                '<button type="button" class="btn btn-primary btn-sm" onclick="gestionarActivaciones(' +
-                                data.id + ')">Activaciones</button>' +
-                                '<?php } ?>' +
-                                '</div>';
-                        }
-                    }
                 ],
                 "language": {
                     "lengthMenu": "Mostrar _MENU_ registros por página",

@@ -6,6 +6,9 @@ use Illuminate\Console\Command;
 use App\Models\User;
 use App\Models\Servicio;
 use App\Models\Activacion;
+use Carbon\Carbon;
+use App\Mail\Activaciones as ActivacionesUsuarioMail;
+use Mail;
 
 class ActivacionesUsuario extends Command
 {
@@ -40,29 +43,42 @@ class ActivacionesUsuario extends Command
      */
     public function handle()
     {
-        //i need a method that return all activaciones of Activacion model that are not expired in the fecha_fin field, if the fecha fin have 5 days or less to expire,
-        // i need to send a notification to the user that have that activacion in the table servicios, and the notification must be send to the user email and to the user phone number,
-        // the notification must be send with the name of the service and the date of the expiration, and the notification must be send 5 days before the expiration date.
-        $activaciones = Activacion::where('fecha_fin', '<=', now()->addDays(5))
-        ->with('servicio')
-        ->limit(10)
-        ->get();
+        $activaciones = Activacion::whereDate('fecha_fin', '>=', Carbon::today())
+    ->whereDate('fecha_fin', '<=', Carbon::today()->addDays(5))
+    ->select('id', 'servicio', 'fecha_fin')
+    ->get();
 
-        $servicios = [];
+$usuariosAgrupados = [];
 
-        foreach ($activaciones as $activacion) {
-            $servicios[] = $activacion->servicio;
+foreach ($activaciones as $activacion) {
+    $servicio = Servicio::find($activacion->servicio);
+
+    if ($servicio) {
+        $idUsuario = $servicio->id_usuario;
+        $usuario = $servicio->usuario->email;
+        $cliente = $servicio->cliente ? $servicio->cliente->nombre : null;
+        $fecha_fin = $activacion->fecha_fin;
+
+        if (!isset($usuariosAgrupados[$idUsuario])) {
+            $usuariosAgrupados[$idUsuario] = [];
         }
 
-        $servicios = Servicio::whereIn('id', $servicios)->with('cliente')->get();
+        $usuariosAgrupados[$idUsuario][] = [
+            'id_activacion' => $activacion->id,
+            'id_servicio' => $activacion->servicio,
+            'cliente' => $cliente,
+            'fecha_fin' => $fecha_fin,
+            'usuario' => $usuario
+        ];
+    } else {
 
-        //seend a mail with Mail class
+        $idServicioError = $activacion->servicio;
+    }
+}
 
-        foreach ($servicios as $servicio) {
-            $user = User::find($servicio->cliente->id_usuario);
-            Mail::to($user->email)->send(new Activaciones($servicio));
-        }
-
-        dd($servicios);
+foreach ($usuariosAgrupados as $activ) {
+    $correo = new ActivacionesUsuarioMail($activ);
+    Mail::to($activ[0]['usuario'])->send($correo);
+}
     }
 }
